@@ -1,32 +1,31 @@
+from google.cloud import speech_v1p1beta1 as speech
 import os
-from google.cloud import speech
-import io
 
-# Set up the Google Cloud Credentials
+# Set the environment variable for credentials
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'google_creds.json'
 
 def transcribe_audio(audio_file):
     client = speech.SpeechClient()
 
-    # Load the audio file
-    with io.open(audio_file, 'rb') as audio:
-        content = audio.read()
-
-    # Configure the audio and request parameters
-    audio = speech.RecognitionAudio(content=content)
+    # Specify audio configuration
     config = speech.RecognitionConfig(
-        encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
-        sample_rate_hertz=16000,
-        language_code="en-US"
+        encoding=speech.RecognitionConfig.AudioEncoding.MP3,  # Set encoding to MP3
+        sample_rate_hertz=16000,  # Set the correct sample rate of your file
+        language_code="en-US",
     )
 
-    # Send request to the API
+    # Load the audio file into memory
+    with open(audio_file, "rb") as audio_file:
+        content = audio_file.read()
+
+    audio = speech.RecognitionAudio(content=content)
+
+    # Make the request to the Google Speech-to-Text API
     response = client.recognize(config=config, audio=audio)
 
-    # Parse and print the transcription
+    # Print the transcription for each result
     for result in response.results:
-        print("Transcript: {}".format(result.alternatives[0].transcript))
+        print(f"Transcript: {result.alternatives[0].transcript}")
 
-# Example usage
-if __name__ == '__main__':
-    transcribe_audio('your_audio_file.wav')
+# Call the function with the MP3 file
+transcribe_audio('goodbye.mp3')
